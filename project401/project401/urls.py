@@ -20,5 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('home/', views.showBoard, name='showBoard'),
     # path('home/', views.countdown, name='countdown'),
-    path('home/', views.showTest, name='showTest'),
+    path('home/', views.demoDatabases, name='demoDatabases'),
 ]
