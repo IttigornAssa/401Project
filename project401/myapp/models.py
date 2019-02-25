@@ -20,14 +20,16 @@ from django.db import models
 
 
 class timeStamp(models.Model):
-	
+	# id = models.AutoField(db_column='ID', primary_key=True)
 	dates=models.CharField(max_length=50)
 	times=models.CharField(max_length=50)
+	# changeReq=models.CharField(max_length=100)
 
 class cardRecord(models.Model):
 
 	idCard=models.CharField(max_length=100)
 	actionCard=models.CharField(max_length=50)
-	timestampID=models.CharField(max_length=50)
+	# timestampID = models.ForeignKey(timeStamp, db_column='timestampID')
+	timestamp=models.ForeignKey(timeStamp,on_delete=models.CASCADE)
 
 
