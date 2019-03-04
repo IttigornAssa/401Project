@@ -21,9 +21,10 @@ from django.db import models
 
 class timeStamp(models.Model):
 	# id = models.AutoField(db_column='ID', primary_key=True)
-	dates=models.CharField(max_length=50)
-	times=models.CharField(max_length=50)
+	# dates=models.CharField(max_length=50)
+	# times=models.CharField(max_length=50)
 	# changeReq=models.CharField(max_length=100)
+	datetime = models.DateTimeField(auto_now_add=True)
 
 class cardRecord(models.Model):
 

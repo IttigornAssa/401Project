@@ -12,7 +12,7 @@ from json.decoder import JSONDecodeError
 import sys
 from datetime import date
 from datetime import datetime
-
+# from django.utils import timezone
 
 def demoDatabases(request):
 	
@@ -25,7 +25,13 @@ def demoDatabases(request):
 	demoDatabases2 = conn2.cursor()
 	conn3 = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
 	demoDatabases3 = conn3.cursor()
-
+	
+	# connect to compare table 1
+	conntable1 = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
+	table1 = conntable1.cursor()
+	# connect to compare table 2
+	conntable2 = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
+	table2 = conntable2.cursor()
 	# auto input(insert)
 	for n in range(1) :
 		# COUNTDOWN
@@ -39,10 +45,11 @@ def demoDatabases(request):
 		from datetime import time
 		datetimes = datetime.now()
 		todayzone = datetimes.strftime("%x")
-		timezone = datetimes.strftime("%H:%M")
-		
+		formatedDate = datetimes.strftime("%Y-%m-%d %H:%M:%S")
+		# timezone = datetimes.strftime("%H:%M")
+		# timezone = timezone.now()
 		# Insert to database
-		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"dates\" ,\"times\" )VALUES ('{}','{}')".format(todayzone,timezone))
+		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
 		print("complete commit")
 		conn.commit()
 
@@ -58,7 +65,8 @@ def demoDatabases(request):
 		use_idtimeStamp = ''
 		for row in idtimeStamp :
 			use_idtimeStamp = row[0]
-
+		# idLength 
+		idLength = int(use_idtimeStamp) + 1
 		# getJson + addData to cardRecord
 		for historycard in data_json :
 			try:
@@ -72,13 +80,17 @@ def demoDatabases(request):
 				pass
 			finally:
 				pass
-
 	changeQ = []
-	demoDatabases3.execute("	SELECT \"idCard\" , \"actionCard\" , \"dates\"  , \"times\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id = 5;")
-	i = 0
+	demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord  where \"timestamp_id\" ="+str(5)+";")
+		# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
 	for row in demoDatabases3 :
-		print(i,row)
-		i=i+1 
+		# print(row,row[0])
+		postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(6)+";"
+		table1.execute(postgreSQL_select_Query1)
+		idCardCheck = table1.fetchall()
+		for x  in idCardCheck :
+			print(x[0],x[2])
+	
 
 	conn.close()
 	conn2.close()
