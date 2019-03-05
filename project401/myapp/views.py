@@ -36,7 +36,7 @@ def demoDatabases(request):
 	for n in range(1) :
 		# COUNTDOWN
 		import time
-		t = 5
+		t = 1
 		while (t > 0):
 			time.sleep(1)
 			print(str(t))
@@ -51,7 +51,7 @@ def demoDatabases(request):
 		# Insert to database
 		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
 		print("complete commit")
-		conn.commit()
+		# conn.commit()
 
 		# connection API Trello
 		url = 'https://api.trello.com/1/board/uXomENXS/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
@@ -75,22 +75,40 @@ def demoDatabases(request):
 				r2 = str(historycard['type'])
 				r3 = str(use_idtimeStamp)
 				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\",\"timestamp_id\")VALUES ('{}', '{}', '{}')".format(r1,r2,r3))
-				conn2.commit()
+				# conn2.commit()
 			except KeyError as e:
 				pass
 			finally:
 				pass
 	changeQ = []
-	demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord  where \"timestamp_id\" ="+str(5)+";")
+	aa = 0
+	bb = 0
+	# Req Change count
+	countlastHistory = 0
+	countlastertHistory = 0
+	# demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord  where \"timestamp_id\" ="+str(4)+";")
+	demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord")
 		# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
 	for row in demoDatabases3 :
 		# print(row,row[0])
-		postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(6)+";"
+		chklastHistory = 0
+		chklastertHistory= 0
+		postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(4)+";"
 		table1.execute(postgreSQL_select_Query1)
 		idCardCheck = table1.fetchall()
-		for x  in idCardCheck :
-			print(x[0],x[2])
+		for lastHistory  in idCardCheck :
+			# print(str(aa),x[0],x[1],x[2])
+			aa= aa+1
+
+
+		postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(5)+";"
+		table2.execute(postgreSQL_select_Query2)
+		idCardCheck2 = table2.fetchall()
+		for lastertHistory  in idCardCheck2 :
+			# print(str(bb),x[0],x[1],x[2])
+			bb= bb+1
 	
+	print(str(bb-aa))
 
 	conn.close()
 	conn2.close()
