@@ -39,7 +39,7 @@ def demoDatabases(request):
 		t = 1
 		while (t > 0):
 			time.sleep(1)
-			print(str(t))
+			print("count down :"+str(t))
 			t = t-1
 		# date - time
 		from datetime import time
@@ -49,8 +49,9 @@ def demoDatabases(request):
 		# timezone = datetimes.strftime("%H:%M")
 		# timezone = timezone.now()
 		# Insert to database
-		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
-		print("complete commit")
+
+
+		# demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
 		# conn.commit()
 
 		# connection API Trello
@@ -73,16 +74,32 @@ def demoDatabases(request):
 			# insert to database
 				r1 = str(historycard['data']['card']['id'])
 				r2 = str(historycard['type'])
-				r3 = str(use_idtimeStamp)
-				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\",\"timestamp_id\")VALUES ('{}', '{}', '{}')".format(r1,r2,r3))
+				r3 = ''
+		
+				try:
+					r3 = str(historycard['data']['card']['desc'])
+				except KeyError as e:
+					r3 = "N/A"
+				finally:
+					pass
+				r4 = ''
+
+				try:
+					r4 = str(historycard['data']['text'])
+				except KeyError as e:
+					r4 = "N/A"
+				finally:
+					pass
+				r5 = str(use_idtimeStamp)
+				# demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5))
 				# conn2.commit()
 			except KeyError as e:
 				pass
 			finally:
 				pass
 	changeQ = []
-	aa = 0
-	bb = 0
+	# current ID
+	loopRetroact = idLength
 	# Req Change count
 	countlastHistory = 0
 	countlastertHistory = 0
@@ -93,22 +110,48 @@ def demoDatabases(request):
 		# print(row,row[0])
 		chklastHistory = 0
 		chklastertHistory= 0
-		postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(4)+";"
+		postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\"  from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(3)+";"
 		table1.execute(postgreSQL_select_Query1)
 		idCardCheck = table1.fetchall()
 		for lastHistory  in idCardCheck :
-			# print(str(aa),x[0],x[1],x[2])
-			aa= aa+1
+			if lastHistory[1] == 'updateCard' :
+				if lastHistory[3] == 'N/A':
+					countlastHistory = countlastHistory+1
+				else :
+					chklastHistory = chklastHistory+1
+					if chklastHistory > 1 :
+						countlastHistory = countlastHistory+1
+			elif lastHistory[1] == 'commentCard' :
+				countlastHistory = countlastHistory	
+			elif lastHistory[1] == 'createCard' :
+				countlastHistory = countlastHistory	+1 
+			# elif rowAfter[1] == 'deleteCard' :
+			# 	pass	
+			else :
+				countlastHistory = countlastHistory+1
 
-
-		postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(5)+";"
+		loopRetroact = loopRetroact - 1
+		postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(2)+";"
 		table2.execute(postgreSQL_select_Query2)
 		idCardCheck2 = table2.fetchall()
 		for lastertHistory  in idCardCheck2 :
-			# print(str(bb),x[0],x[1],x[2])
-			bb= bb+1
+			if lastertHistory[1] == 'updateCard' :
+				if lastertHistory[3] == 'N/A':
+					countlastertHistory = countlastertHistory+1
+				else :
+					chklastertHistory = chklastertHistory+1
+					if chklastertHistory > 1 :
+						countlastertHistory = countlastertHistory+1
+			elif lastertHistory[1] == 'commentCard' :
+				countlastertHistory = countlastertHistory	
+			elif lastHistory[1] == 'createCard' :
+				countlastertHistory = countlastertHistory	+1 
+			else :
+				countlastertHistory = countlastertHistory+1
+
+		
 	
-	print(str(bb-aa))
+	print(str(countlastHistory-countlastertHistory))
 
 	conn.close()
 	conn2.close()
