@@ -51,8 +51,8 @@ def demoDatabases(request):
 		# Insert to database
 
 
-		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
-		conn.commit()
+		# demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
+		# conn.commit()
 
 		# connection API Trello
 		url = 'https://api.trello.com/1/board/LXSisJxP/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
@@ -91,67 +91,68 @@ def demoDatabases(request):
 				finally:
 					pass
 				r5 = str(use_idtimeStamp)
-				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5))
-				conn2.commit()
+				# demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5))
+				# conn2.commit()
 			except KeyError as e:
 				pass
 			finally:
 				pass
 	changeQ = []
 	# current ID
-	loopRetroact = idLength
+	loopRetroact = idLength - 1
+	loopRetroact2 = idLength - 2
+	fixloop = loopRetroact 
 	# Req Change count
-	countlastHistory = 0
-	countlastertHistory = 0
-	# demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord  where \"timestamp_id\" ="+str(4)+";")
-	demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord")
-		# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
-	for row in demoDatabases3 :
-		# print(row,row[0])
-		chklastHistory = 0
-		chklastertHistory= 0
-		postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\"  from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(3)+";"
-		table1.execute(postgreSQL_select_Query1)
-		idCardCheck = table1.fetchall()
-		for lastHistory  in idCardCheck :
-			if lastHistory[1] == 'updateCard' :
-				if lastHistory[3] == 'N/A':
-					countlastHistory = countlastHistory+1
-				else :
-					chklastHistory = chklastHistory+1
-					if chklastHistory > 1 :
-						countlastHistory = countlastHistory+1
-			elif lastHistory[1] == 'commentCard' :
-				countlastHistory = countlastHistory	
-			elif lastHistory[1] == 'createCard' :
-				countlastHistory = countlastHistory	+1 
-			# elif rowAfter[1] == 'deleteCard' :
-			# 	pass	
-			else :
-				countlastHistory = countlastHistory+1
 
-		loopRetroact = loopRetroact - 1
-		postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(2)+";"
-		table2.execute(postgreSQL_select_Query2)
-		idCardCheck2 = table2.fetchall()
-		for lastertHistory  in idCardCheck2 :
-			if lastertHistory[1] == 'updateCard' :
-				if lastertHistory[3] == 'N/A':
-					countlastertHistory = countlastertHistory+1
-				else :
-					chklastertHistory = chklastertHistory+1
-					if chklastertHistory > 1 :
+	# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
+	for i in range(fixloop):
+		if loopRetroact != 1 :
+			countlastHistory = 0
+			countlastertHistory = 0
+			demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord")		
+			for row in demoDatabases3 :
+				chklastHistory = 0
+				chklastertHistory= 0
+				postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\"  from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact)+";"
+				table1.execute(postgreSQL_select_Query1)
+				idCardCheck = table1.fetchall()
+				for lastHistory  in idCardCheck :
+					if lastHistory[1] == 'updateCard' :
+						if lastHistory[3] == 'N/A':
+							countlastHistory = countlastHistory+1
+						else :
+							chklastHistory = chklastHistory+1
+							if chklastHistory > 1 :
+								countlastHistory = countlastHistory+1
+					elif lastHistory[1] == 'commentCard' :				
+						countlastHistory = countlastHistory	
+					elif lastHistory[1] == 'createCard' :
+						countlastHistory = countlastHistory	+1 
+					else :
+						countlastHistory = countlastHistory+1
+
+				postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact2)+";"
+				table2.execute(postgreSQL_select_Query2)
+				idCardCheck2 = table2.fetchall()
+				for lastertHistory  in idCardCheck2 :
+					if lastertHistory[1] == 'updateCard' :
+						if lastertHistory[3] == 'N/A':
+							countlastertHistory = countlastertHistory+1
+						else :
+							chklastertHistory = chklastertHistory+1
+							if chklastertHistory > 1 :
+								countlastertHistory = countlastertHistory+1
+					elif lastertHistory[1] == 'commentCard' :
+						countlastertHistory = countlastertHistory	
+					elif lastertHistory[1] == 'createCard' :
+						countlastertHistory = countlastertHistory	+1 
+					else :
 						countlastertHistory = countlastertHistory+1
-			elif lastertHistory[1] == 'commentCard' :
-				countlastertHistory = countlastertHistory	
-			elif lastertHistory[1] == 'createCard' :
-				countlastertHistory = countlastertHistory	+1 
-			else :
-				countlastertHistory = countlastertHistory+1
 
 		
-	
-	print(str(countlastHistory-countlastertHistory))
+			loopRetroact = loopRetroact -1
+			loopRetroact2 = loopRetroact2 -1
+			print(str(countlastHistory-countlastertHistory))
 
 	conn.close()
 	conn2.close()
