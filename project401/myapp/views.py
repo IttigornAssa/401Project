@@ -33,10 +33,10 @@ def demoDatabases(request):
 	conntable2 = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
 	table2 = conntable2.cursor()
 	# auto input(insert)
-	for n in range(2) :
+	for n in range(1) :
 		# COUNTDOWN
 		import time
-		t = 5
+		t = 2
 		while (t > 0):
 			time.sleep(1)
 			print("count down :"+str(t))
@@ -55,7 +55,7 @@ def demoDatabases(request):
 		conn.commit()
 
 		# connection API Trello
-		url = 'https://api.trello.com/1/board/LXSisJxP/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
+		url = 'https://api.trello.com/1/board/6jPwCEZo/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
 		apiTrello = requests.get(url)
 		data_json = apiTrello.json()
 
@@ -90,8 +90,17 @@ def demoDatabases(request):
 					r4 = "N/A"
 				finally:
 					pass
-				r5 = str(use_idtimeStamp)
-				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5))
+
+				r5 = ''
+				try:
+					r5 = str(historycard['data']['listAfter']['name'])
+				except KeyError as e:
+					r5 = "N/A"
+				finally:
+					pass
+
+				r6 = str(use_idtimeStamp)
+				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
 				conn2.commit()
 			except KeyError as e:
 				pass
@@ -113,13 +122,17 @@ def demoDatabases(request):
 			for row in demoDatabases3 :
 				chklastHistory = 0
 				chklastertHistory= 0
-				postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\"  from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact)+";"
+				postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" , \"listafterCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact)+";"
 				table1.execute(postgreSQL_select_Query1)
 				idCardCheck = table1.fetchall()
 				for lastHistory  in idCardCheck :
 					if lastHistory[1] == 'updateCard' :
 						if lastHistory[3] == 'N/A':
-							countlastHistory = countlastHistory+1
+							# countlastHistory = countlastHistory+1
+							if lastHistory[4] == 'N/A':
+								pass
+							else :
+								countlastHistory = countlastHistory	+1 
 						else :
 							chklastHistory = chklastHistory+1
 							if chklastHistory > 1 :
@@ -131,13 +144,17 @@ def demoDatabases(request):
 					else :
 						countlastHistory = countlastHistory+1
 
-				postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact2)+";"
+				postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" ,\"listafterCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact2)+";"
 				table2.execute(postgreSQL_select_Query2)
 				idCardCheck2 = table2.fetchall()
 				for lastertHistory  in idCardCheck2 :
 					if lastertHistory[1] == 'updateCard' :
 						if lastertHistory[3] == 'N/A':
-							countlastertHistory = countlastertHistory+1
+							# countlastertHistory = countlastertHistory+1
+							if lastertHistory[4] == 'N/A':
+								pass
+							else :
+								countlastertHistory = countlastertHistory	+1 
 						else :
 							chklastertHistory = chklastertHistory+1
 							if chklastertHistory > 1 :

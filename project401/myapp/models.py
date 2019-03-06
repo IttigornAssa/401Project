@@ -11,6 +11,7 @@ class cardRecord(models.Model):
 	actionCard=models.CharField(max_length=50)
 	descCard=models.CharField(max_length=400)
 	commentCard=models.CharField(max_length=200)
+	listafterCard =models.CharField(max_length=50)
 	timestamp=models.ForeignKey(timeStamp,on_delete=models.CASCADE)
 
 
