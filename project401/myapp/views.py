@@ -36,7 +36,7 @@ def demoDatabases(request):
 	for n in range(1) :
 		# COUNTDOWN
 		import time
-		t = 2
+		t = 1
 		while (t > 0):
 			time.sleep(1)
 			print("count down :"+str(t))
@@ -51,11 +51,11 @@ def demoDatabases(request):
 		# Insert to database
 
 
-		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
-		conn.commit()
+		# demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
+		# conn.commit()
 
 		# connection API Trello
-		url = 'https://api.trello.com/1/board/6jPwCEZo/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
+		url = 'https://api.trello.com/1/board/dZbJ6bKF/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
 		apiTrello = requests.get(url)
 		data_json = apiTrello.json()
 
@@ -100,24 +100,41 @@ def demoDatabases(request):
 					pass
 
 				r6 = str(use_idtimeStamp)
-				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
-				conn2.commit()
+				# 42 tsmp
+				# demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
+				# conn2.commit()
 			except KeyError as e:
 				pass
 			finally:
 				pass
 	changeQ = []
-	# current ID
+	# table1-ID
 	loopRetroact = idLength - 1
+
+	# table2-ID
 	loopRetroact2 = idLength - 2
+
+	# loop for calculate
 	fixloop = loopRetroact 
-	# Req Change count
+
+	# fix 1 count 
+	
 
 	# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
 	for i in range(fixloop):
 		if loopRetroact != 1 :
+			fix = 1
+			# count to calculate
 			countlastHistory = 0
 			countlastertHistory = 0
+
+			# check Delete / MoveCard
+			deleteHistory = 0
+			deleteLaster = 0
+			beforeDelete = 0
+
+
+			# seleact all card DISTINCT
 			demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord")		
 			for row in demoDatabases3 :
 				chklastHistory = 0
@@ -126,9 +143,10 @@ def demoDatabases(request):
 				table1.execute(postgreSQL_select_Query1)
 				idCardCheck = table1.fetchall()
 				for lastHistory  in idCardCheck :
-					if lastHistory[1] == 'updateCard' :
+					if lastHistory[1] == 'deleteCard' :
+						deleteHistory = 1 
+					elif lastHistory[1] == 'updateCard' :
 						if lastHistory[3] == 'N/A':
-							# countlastHistory = countlastHistory+1
 							if lastHistory[4] == 'N/A':
 								pass
 							else :
@@ -148,13 +166,14 @@ def demoDatabases(request):
 				table2.execute(postgreSQL_select_Query2)
 				idCardCheck2 = table2.fetchall()
 				for lastertHistory  in idCardCheck2 :
-					if lastertHistory[1] == 'updateCard' :
+					if lastertHistory[1] == 'deleteCard' :
+						deleteLaster = 1
+					elif lastertHistory[1] == 'updateCard' :
 						if lastertHistory[3] == 'N/A':
-							# countlastertHistory = countlastertHistory+1
 							if lastertHistory[4] == 'N/A':
 								pass
 							else :
-								countlastertHistory = countlastertHistory	+1 
+								countlastertHistory = countlastertHistory+1 
 						else :
 							chklastertHistory = chklastertHistory+1
 							if chklastertHistory > 1 :
@@ -165,10 +184,38 @@ def demoDatabases(request):
 						countlastertHistory = countlastertHistory	+1 
 					else :
 						countlastertHistory = countlastertHistory+1
+				if fix == 1 :
+					if deleteHistory == 1 :
+						if deleteLaster != 1 :
+							beforeDelete = countlastertHistory + 1 
+							countlastHistory =countlastHistory + beforeDelete
+							fix = 0
 
+	
+
+
+# 1
+# 4
+# 2
+# 0
+# 1
+# 4
+# 7
+
+
+# 4
+#-5	7-8
+# 4	6-7
+# 2	5-6
+# 0	4-5	
+# 1	3-4
+# 4	2-3
+# 7 1-2
 		
 			loopRetroact = loopRetroact -1
 			loopRetroact2 = loopRetroact2 -1
+			# print(str(countlastHistory))
+			# print(str(countlastertHistory))
 			print(str(countlastHistory-countlastertHistory))
 
 	conn.close()
