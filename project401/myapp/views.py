@@ -1,5 +1,6 @@
-from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic.list import ListView
+# from django.views.generic.edit import CreateView, UpdateView
+# from django.views.generic.list import ListView
+# import sys
 from requests import get
 from psycopg2 import connect
 from django.shortcuts import render, redirect
@@ -9,7 +10,6 @@ import json
 from django.http import JsonResponse
 from array import *
 from json.decoder import JSONDecodeError
-import sys
 from datetime import date
 from datetime import datetime
 # from django.utils import timezone
@@ -35,6 +35,7 @@ def demoDatabases(request):
 	# connect to count delete
 	conntableDL = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
 	tableDL = conntableDL.cursor()
+
 	# auto input(insert)
 	for n in range(1) :
 		# COUNTDOWN
@@ -53,9 +54,8 @@ def demoDatabases(request):
 		# timezone = timezone.now()
 		# Insert to database
 
-
-		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
-		conn.commit()
+		# demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
+		# conn.commit()
 
 		# connection API Trello
 		url = 'https://api.trello.com/1/board/8twCRfOj/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
@@ -104,8 +104,8 @@ def demoDatabases(request):
 
 				r6 = str(use_idtimeStamp)
 				# 42 tsmp
-				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
-				conn2.commit()
+				# demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
+				# conn2.commit()
 			except KeyError as e:
 				pass
 			finally:
@@ -122,6 +122,7 @@ def demoDatabases(request):
 
 	# changeRQ
 	changeRQ = 0
+	arrayJson = []
 	
 
 	# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
@@ -135,7 +136,6 @@ def demoDatabases(request):
 			deleteHistory = 0
 			deleteLaster = 0
 			beforeDelete = 0
-
 
 			# seleact all card DISTINCT
 			demoDatabases3.execute("SELECT DISTINCT \"idCard\" FROM public.myapp_cardrecord")		
@@ -197,58 +197,31 @@ def demoDatabases(request):
 
 				sumcountlastHistory += countlastHistory
 				sumcountlastertHistory += countlastertHistory
-
-				# 	if deleteHistory == 1 :
-				# 		countlastHistory = countlastHistory+1
-				# deleteHistory = 0
-
-
-				# changeRQ
-				# if fix == 1 :
-				# 	if deleteHistory == 1 :
-				# 		if deleteLaster != 1 :
-				# 			beforeDelete = countlastertHistory + 1 
-				# 			countlastHistory =countlastHistory + beforeDelete
-				# 			fix = 0
-
-	
-
-
-# 1
-# 4
-# 2
-# 0
-# 1
-# 4
-# 7
-
-
-# 4
-#-5	7-8
-# 4	6-7
-# 2	5-6
-# 0	4-5	
-# 1	3-4
-# 4	2-3
-# 7 1-2
 		
 			loopRetroact = loopRetroact -1
 			loopRetroact2 = loopRetroact2 -1
-			# print(str(countlastHistory))
-			# print(str(countlastertHistory))
-			# print(str(countlastHistory-countlastertHistory))
-			# if (countlastHistory - countlastertHistory) < 0 :
-			# 	changeRQ =	1
-			# else:
 			changeRQ = sumcountlastHistory - sumcountlastertHistory
-			print(changeRQ)
+			# print(changeRQ)
+			# arrayJson.append({'change':changeRQ})
+			arrayJson.append(changeRQ)
+
+
+	# connect to insertJson
+	# my_json_string = json.dumps(arrayJson)
+	# connChange = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
+	# tableChange = connChange.cursor()
+	# tableChange.execute("INSERT INTO myapp_changereq  (\"amountChange\", \"timestamp_id\")VALUES ('{}', '{}')".format(my_json_string,1))
+	# connChange.commit()
+	# connChange.close()
 
 	conn.close()
 	conn2.close()
 	conn3.close()
+	# for i in range(len(arrayJson)) :
+	# 	print(arrayJson[i])
+	# print(arrayJson)
+
 	return render(request,'home.html')
 
-	# listState
-	# comment
 
 	

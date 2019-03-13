@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.postgres.fields import JSONField
 
 class timeStamp(models.Model):
 
@@ -15,3 +15,7 @@ class cardRecord(models.Model):
 	timestamp=models.ForeignKey(timeStamp,on_delete=models.CASCADE)
 
 
+class changeReq(models.Model):
+	amountChange=models.IntegerField(default=0)
+	# amountChange = JSONField()
+	timestamp=models.ForeignKey(timeStamp,on_delete=models.CASCADE)
