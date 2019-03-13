@@ -58,7 +58,7 @@ def demoDatabases(request):
 		conn.commit()
 
 		# connection API Trello
-		url = 'https://api.trello.com/1/board/dZbJ6bKF/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
+		url = 'https://api.trello.com/1/board/8twCRfOj/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
 		apiTrello = requests.get(url)
 		data_json = apiTrello.json()
 
@@ -129,9 +129,8 @@ def demoDatabases(request):
 		if loopRetroact != 1 :
 			fix = 1
 			# count to calculate
-			countlastHistory = 0
-			countlastertHistory = 0
-
+			sumcountlastHistory = 0
+			sumcountlastertHistory = 0
 			# check Delete / MoveCard
 			deleteHistory = 0
 			deleteLaster = 0
@@ -143,17 +142,42 @@ def demoDatabases(request):
 			for row in demoDatabases3 :
 				chklastHistory = 0
 				chklastertHistory= 0
+				countlastHistory = 0
+				countlastertHistory = 0
+				chkdeleteCard = 0
+				postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" ,\"listafterCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact2)+";"
+				table2.execute(postgreSQL_select_Query2)
+				idCardCheck2 = table2.fetchall()
+				for lastertHistory  in idCardCheck2 :
+					if lastertHistory[1] == 'deleteCard' or lastertHistory[1] == 'moveCardFromBoard' :
+						# pass
+						chkdeleteCard = 1
+						countlastertHistory = 1
+					elif lastertHistory[1] == 'updateCard' :
+						if lastertHistory[3] == 'N/A':
+							if lastertHistory[4] == 'N/A':
+								pass
+							else :
+								countlastertHistory = countlastertHistory+1 
+						else :
+							chklastertHistory = chklastertHistory+1
+							if chklastertHistory > 1 :
+								countlastertHistory = countlastertHistory+1
+					elif lastertHistory[1] == 'commentCard' :
+						countlastertHistory = countlastertHistory	
+					elif lastertHistory[1] == 'createCard' :
+						countlastertHistory = countlastertHistory+1 
+					else :
+						countlastertHistory = countlastertHistory+1
+
 				postgreSQL_select_Query1 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" , \"listafterCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact)+";"
 				table1.execute(postgreSQL_select_Query1)
 				idCardCheck = table1.fetchall()
 				for lastHistory  in idCardCheck :
-					if lastHistory[1] == 'deleteCard' :
-						deleteHistory = 1 
-						# countlastHistory = countlastHistory	+1 
-						# postgreSQL_select_count = "select COUNT(\"id\") from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(7)+";"
-						# tableDL.execute(postgreSQL_select_count)
-						# countBFdelete = tableDL.fetchone()
-						# print(countBFdelete)
+					if lastHistory[1] == 'deleteCard' or lastHistory[1] == 'moveCardFromBoard':
+						countlastHistory = 1
+						if chkdeleteCard == 0:
+							countlastHistory += countlastertHistory
 					elif lastHistory[1] == 'updateCard' :
 						if lastHistory[3] == 'N/A':
 							if lastHistory[4] == 'N/A':
@@ -171,30 +195,9 @@ def demoDatabases(request):
 					else :
 						countlastHistory = countlastHistory+1
 
-				postgreSQL_select_Query2 = "select \"idCard\", \"actionCard\" ,\"timestamp_id\" ,\"descCard\" ,\"listafterCard\" from public.myapp_cardrecord  where \"idCard\" = "+ "'"+row[0]+ "' and \"timestamp_id\" ="+str(loopRetroact2)+";"
-				table2.execute(postgreSQL_select_Query2)
-				idCardCheck2 = table2.fetchall()
-				for lastertHistory  in idCardCheck2 :
-					if deleteHistory == 1 :
-						pass
-					if lastertHistory[1] == 'deleteCard' :
-						deleteLaster = 1
-					elif lastertHistory[1] == 'updateCard' :
-						if lastertHistory[3] == 'N/A':
-							if lastertHistory[4] == 'N/A':
-								pass
-							else :
-								countlastertHistory = countlastertHistory+1 
-						else :
-							chklastertHistory = chklastertHistory+1
-							if chklastertHistory > 1 :
-								countlastertHistory = countlastertHistory+1
-					elif lastertHistory[1] == 'commentCard' :
-						countlastertHistory = countlastertHistory	
-					elif lastertHistory[1] == 'createCard' :
-						countlastertHistory = countlastertHistory+1 
-					else :
-						countlastertHistory = countlastertHistory+1
+				sumcountlastHistory += countlastHistory
+				sumcountlastertHistory += countlastertHistory
+
 				# 	if deleteHistory == 1 :
 				# 		countlastHistory = countlastHistory+1
 				# deleteHistory = 0
@@ -234,10 +237,10 @@ def demoDatabases(request):
 			# print(str(countlastHistory))
 			# print(str(countlastertHistory))
 			# print(str(countlastHistory-countlastertHistory))
-			if (countlastHistory - countlastertHistory) < 0 :
-				changeRQ =1
-			else:
-				changeRQ = countlastHistory - countlastertHistory
+			# if (countlastHistory - countlastertHistory) < 0 :
+			# 	changeRQ =	1
+			# else:
+			changeRQ = sumcountlastHistory - sumcountlastertHistory
 			print(changeRQ)
 
 	conn.close()
