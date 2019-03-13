@@ -123,8 +123,8 @@ def demoDatabases(request):
 	# changeRQ
 	changeRQ = 0
 	arrayJson = []
+	arrayJsonTimeStamp = []
 	
-
 	# demoDatabases3.execute("SELECT \"idCard\" , \"actionCard\" , \"timestamp_id\"  , \"dates\" FROM public.myapp_timestamp inner join public.myapp_cardrecord on public.myapp_cardrecord.timestamp_id =  public.myapp_timestamp.id where public.myapp_timestamp.id ="+ str(x) +";")
 	for i in range(fixloop):
 		if loopRetroact != 1 :
@@ -198,28 +198,47 @@ def demoDatabases(request):
 				sumcountlastHistory += countlastHistory
 				sumcountlastertHistory += countlastertHistory
 		
-			loopRetroact = loopRetroact -1
-			loopRetroact2 = loopRetroact2 -1
+
 			changeRQ = sumcountlastHistory - sumcountlastertHistory
 			# print(changeRQ)
-			# arrayJson.append({'change':changeRQ})
-			arrayJson.append(changeRQ)
+			arrayJson.append(changeRQ)	
+			arrayJsonTimeStamp.append(loopRetroact)	
+			loopRetroact = loopRetroact -1
+			loopRetroact2 = loopRetroact2 -1
+
 
 
 	# connect to insertJson
-	# my_json_string = json.dumps(arrayJson)
-	# connChange = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
-	# tableChange = connChange.cursor()
-	# tableChange.execute("INSERT INTO myapp_changereq  (\"amountChange\", \"timestamp_id\")VALUES ('{}', '{}')".format(my_json_string,1))
-	# connChange.commit()
-	# connChange.close()
+	my_json_string = json.dumps(arrayJson)
+	connChange = connect("dbname='trello_test' user='postgres' host='localhost' password='1234'")
+	tableChange = connChange.cursor()
+	# change id 1 = 0
+	arrayJson.append(0)
+	arrayJsonTimeStamp.append(1)
 
+	arrayJsonChange = []
+	arrayJsonIdTimeStamp = []
+	tableChange.execute("DELETE FROM myapp_changereq where  id != -1 ") 
+	for i in reversed(arrayJson):
+		arrayJsonChange.append(i)
+	print(arrayJsonChange)
+
+	for i in reversed(arrayJsonTimeStamp):
+		arrayJsonIdTimeStamp.append(i)
+	print(arrayJsonIdTimeStamp)
+
+	for i in range(fixloop):
+		tableChange.execute("INSERT INTO myapp_changereq  (\"amountChange\", \"timestamp_id\")VALUES ('{}', '{}')".format(int(arrayJsonChange[i]),int(arrayJsonIdTimeStamp[i])))
+		
+		
+	connChange.commit()
+	connChange.close()
 	conn.close()
 	conn2.close()
 	conn3.close()
 	# for i in range(len(arrayJson)) :
 	# 	print(arrayJson[i])
-	# print(arrayJson)
+	
 
 	return render(request,'home.html')
 
