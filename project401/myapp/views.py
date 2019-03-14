@@ -54,8 +54,8 @@ def demoDatabases(request):
 		# timezone = timezone.now()
 		# Insert to database
 
-		# demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
-		# conn.commit()
+		demoDatabases.execute("INSERT INTO myapp_timeStamp  (\"datetime\"  )VALUES ('{}')".format(formatedDate))
+		conn.commit()
 
 		# connection API Trello
 		url = 'https://api.trello.com/1/board/8twCRfOj/actions?key=86dea335c1203f4164c12d4a22905cf7&token=6ddeefb4235c59a2ebe43f64048774d61c55684b98c72b78bd4c6415cff05c94'
@@ -104,8 +104,8 @@ def demoDatabases(request):
 
 				r6 = str(use_idtimeStamp)
 				# 42 tsmp
-				# demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
-				# conn2.commit()
+				demoDatabases2.execute("INSERT INTO myapp_cardRecord  (\"idCard\", \"actionCard\", \"descCard\", \"commentCard\", \"listafterCard\" ,\"timestamp_id\")VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(r1,r2,r3,r4,r5,r6))
+				conn2.commit()
 			except KeyError as e:
 				pass
 			finally:
@@ -221,11 +221,11 @@ def demoDatabases(request):
 	tableChange.execute("DELETE FROM myapp_changereq where  id != -1 ") 
 	for i in reversed(arrayJson):
 		arrayJsonChange.append(i)
-	print(arrayJsonChange)
+	# print(arrayJsonChange)
 
 	for i in reversed(arrayJsonTimeStamp):
 		arrayJsonIdTimeStamp.append(i)
-	print(arrayJsonIdTimeStamp)
+	# print(arrayJsonIdTimeStamp)
 
 	for i in range(fixloop):
 		tableChange.execute("INSERT INTO myapp_changereq  (\"amountChange\", \"timestamp_id\")VALUES ('{}', '{}')".format(int(arrayJsonChange[i]),int(arrayJsonIdTimeStamp[i])))
